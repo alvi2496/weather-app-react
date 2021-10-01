@@ -1,3 +1,6 @@
+const webpack = require('webpack')
+const dotenv = require('dotenv')
+
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const htmlPlugin = new HtmlWebPackPlugin({
  template: "./src/index.html",
@@ -18,5 +21,12 @@ mode: 'development',
    use: ["style-loader", "css-loader"]
   }
 ]},
- plugins: [htmlPlugin]
+plugins: [
+  htmlPlugin,
+  new webpack.DefinePlugin(
+    {
+    'process.env': JSON.stringify(dotenv.config().parsed) // it will automatically pick up key values from .env file
+    }
+  )
+]
 };
