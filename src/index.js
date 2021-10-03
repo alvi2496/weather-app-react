@@ -4,11 +4,14 @@ import { Container, Grid } from '@mui/material';
 
 import WeatherContext from './contexts/WeatherContext';
 import Summary from './components/Summary';
+import HourlyWeather from './components/HourlyWeather';
+import DailyWeather from './components/DailyWeather';
 
 const App = () => {
 
     const [weatherData, setWeatherData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [hourlyData, setHourlyData] = useState([]);
+    const [dailyData, setDailyData] = useState([]);
 
     useEffect(() => {
         fetch(
@@ -18,11 +21,22 @@ const App = () => {
         ).then(
             (data) => {
                 setWeatherData(data);
-                setLoading(false);
+                if(weatherData){
+                    fetch(
+                        `https://api.openweathermap.org/data/2.5/onecall?lat=${weatherData.coord.lat}&lon=${weatherData.coord.lon}&appid=${process.env.OPEN_WEATHER_API_KEY}`
+                    ).then(
+                        (response) => response.json()
+                    ).then(
+                        (data) => {
+                            setHourlyData(data.hourly);
+                            setDailyData(data.daily);
+                        }
+                    );
+                }
             }
         );
         
-    }, weatherData);
+    }, [weatherData]);
 
     return (
         <Container fixed>
@@ -34,11 +48,15 @@ const App = () => {
                         </Grid>
 
                         <Grid item xs={12}>
-                            <p>Hourly Weather</p>
+                            <HourlyWeather 
+                                hourlyData={hourlyData}
+                            />
                         </Grid>
                         
                         <Grid item xs={12}>
-                            <p>Daily Weather</p>
+                            <DailyWeather 
+                                dailyData={dailyData}
+                            />
                         </Grid>
                         
                         <Grid item xs={12}>
