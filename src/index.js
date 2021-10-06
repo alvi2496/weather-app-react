@@ -10,33 +10,41 @@ import DailyWeather from './components/DailyWeather';
 const App = () => {
 
     const [weatherData, setWeatherData] = useState(null);
+    const [oneCallData, setOneCallData] = useState(null);
     const [hourlyData, setHourlyData] = useState([]);
     const [dailyData, setDailyData] = useState([]);
 
     useEffect(() => {
-        fetch(
-            `https://api.openweathermap.org/data/2.5/weather?q=victoria,bc,ca&appid=${process.env.OPEN_WEATHER_API_KEY}`
-        ).then(
-            (response) => response.json()
-        ).then(
-            (data) => {
-                setWeatherData(data);
-                if(weatherData){
-                    fetch(
-                        `https://api.openweathermap.org/data/2.5/onecall?lat=${weatherData.coord.lat}&lon=${weatherData.coord.lon}&appid=${process.env.OPEN_WEATHER_API_KEY}`
-                    ).then(
-                        (response) => response.json()
-                    ).then(
-                        (data) => {
-                            setHourlyData(data.hourly);
-                            setDailyData(data.daily);
-                        }
-                    );
+        if (!weatherData) {
+            fetch(
+                `https://api.openweathermap.org/data/2.5/weather?q=victoria,bc,ca&appid=${process.env.OPEN_WEATHER_API_KEY}`
+            ).then(
+                (response) => response.json()
+            ).then(
+                (data) => {
+                    setWeatherData(data);
                 }
-            }
-        );
-        
-    }, [weatherData]);
+            )
+        }
+
+        if(weatherData && !oneCallData)
+            fetch(
+                `https://api.openweathermap.org/data/2.5/onecall?lat=${weatherData.coord.lat}&lon=${weatherData.coord.lon}&appid=${process.env.OPEN_WEATHER_API_KEY}`
+            ).then(
+                (response) => response.json()
+            ).then(
+                (data) => {
+                    setOneCallData(data);
+                    setHourlyData(data.hourly);
+                    setDailyData(data.daily);
+                }
+        )
+    }, [weatherData, oneCallData]);
+
+    console.log("weather data");
+    console.log(weatherData);
+    console.log("onecall data");
+    console.log(oneCallData);
 
     return (
         <Container fixed>
@@ -48,21 +56,21 @@ const App = () => {
                         </Grid>
 
                         <Grid item xs={12}>
-                            <HourlyWeather 
+                            <HourlyWeather
                                 hourlyData={hourlyData}
                             />
                         </Grid>
-                        
+
                         <Grid item xs={12}>
-                            <DailyWeather 
+                            <DailyWeather
                                 dailyData={dailyData}
                             />
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                             <p>Misc</p>
                         </Grid>
-                        
+
                 </Grid>
             </WeatherContext.Provider>
         </Container>
