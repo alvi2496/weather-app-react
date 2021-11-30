@@ -39,7 +39,7 @@ const App = () => {
                     setDailyData(data.daily);
                 }
         )
-    }, [weatherData, oneCallData]);
+    }, []);
 
     console.log("weather data");
     console.log(weatherData);
